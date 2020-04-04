@@ -1,0 +1,23 @@
+.Carousel {
+    height: 90vh;
+    color: black;
+}
+
+Carousel.Item {
+    height: 90vh;
+    /* width: auto; */
+}
+
+.Image {
+    width: 100%;
+    height: 90vh;
+    opacity: 0.5;
+}
+h1, p {
+    color: black;
+}
+
+.Caption {
+    height: 55%;
+    /* background-color:orange; */
+}

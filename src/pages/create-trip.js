@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import Geocode from 'react-geocode'
 
+import Layout from '../containers/Layout/Layout'
 import Map from '../components/Map/Map'
 import ControlBox from '../components/ControlBox/ControlBox'
 
-import classes from '../css/create-trip.module.css'
+import classes from '../page-level-css/create-trip.module.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class CreateTrip extends Component {
@@ -185,26 +186,28 @@ class CreateTrip extends Component {
     let stops = [...this.state.stops]
 
     return (
-      <div className={classes.container}>
-        <div className={classes.mapDiv}>
-          <Map
-            handleApiLoaded={this.apiIsLoaded}
-            stopList={stops}/>
+      <Layout>
+        <div className={classes.container}>
+          <div className={classes.mapDiv}>
+            <Map
+              handleApiLoaded={this.apiIsLoaded}
+              stopList={stops}/>
+          </div>
+          <div className={classes.controlDiv}>
+            <ControlBox
+              modes={this.state.modes}
+              stops={this.state.stops}
+              dateChanged={this.handleDateSelect}
+              modeChanged={this.handleModeChange}
+              cityChanged={this.handleCityChange}
+              stopRemoved={this.handleRemoveStop}
+              numStops={this.state.stopCounter}
+              addStop={this.handleAddStop}
+              generateItinerary={this.handleGenerateItinerary}
+            />
+          </div>
         </div>
-        <div className={classes.controlDiv}>
-          <ControlBox
-            modes={this.state.modes}
-            stops={this.state.stops}
-            dateChanged={this.handleDateSelect}
-            modeChanged={this.handleModeChange}
-            cityChanged={this.handleCityChange}
-            stopRemoved={this.handleRemoveStop}
-            numStops={this.state.stopCounter}
-            addStop={this.handleAddStop}
-            generateItinerary={this.handleGenerateItinerary}
-          />
-        </div>
-      </div>
+      </Layout>
     )
   }
 }

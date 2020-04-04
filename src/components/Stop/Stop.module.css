@@ -1,35 +1,37 @@
-.container {
-    display: flex;
-    width: 90%;
-    flex-direction: row;
-    align-content: center;
-}
-
-.inputFrame {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 100px;
-    justify-content: center;
-    align-items: center;
-}
-
-.Col {
-    width: 33%;
-    display: flex;
-    justify-content: center;
-}
-
-.Btn {
-    height: 100px;
-    position: absolute;
-    right: 8px;
-    display: flex;
-    align-items: center;
+@media(min-width:600px) {
+    .container {
+        display: flex;
+        width: 90%;
+        flex-direction: row;
+        align-content: center;
+    }
     
-}
-
-.Btn Button {
+    .inputFrame {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100px;
+        justify-content: center;
+        align-items: center;
+    }
     
+    .Col {
+        width: 33%;
+        display: flex;
+        justify-content: center;
+    }
     
+    .Btn {
+        height: 100px;
+        position: absolute;
+        right: 8px;
+        display: flex;
+        align-items: center;
+        
+    }
+    
+    .Btn Button {
+        
+        
+    }
 }
