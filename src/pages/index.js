@@ -7,6 +7,7 @@ import { Link } from "gatsby"
 import Layout from '../containers/Layout/Layout'
 
 import classes from '../page-level-css/index.module.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 
 const index = props => {

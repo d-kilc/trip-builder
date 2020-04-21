@@ -23,8 +23,8 @@ class CreateTrip extends Component {
       // startDate: new Date(),
       stopCounter: 0,
       stops: [
-        {key: 'start', city: '', latitude: null, longitude: null, mode: null, date: new Date()},
-        {key: 'end', city: '', latitude: null, longitude: null, mode: null, date: new Date()},
+        {key: 'start', city: '', latitude: null, longitude: null, mode: null, date: null},
+        {key: 'end', city: '', latitude: null, longitude: null, mode: null, date: null},
       ]
     }
   } 
@@ -36,7 +36,7 @@ class CreateTrip extends Component {
     let newStops = [...this.state.stops]
 
     newStops.splice(
-      numStops, 0, {key: numStops, city: '', latitude: null, longitude: null, mode: null, date: new Date()}
+      numStops, 0, {key: numStops, city: '', latitude: null, longitude: null, mode: null, date: null}
     )
     // update the state and print
     this.setState({ stopCounter: numStops, stops: newStops },
@@ -69,6 +69,7 @@ class CreateTrip extends Component {
   apiIsLoaded = (map, maps) => {
     console.log('api loaded')
   
+    // mapObj is the instance on the page; mapsApi is the GMaps API service
     this.setState({mapObj: map, mapsApi: maps},
       function() {
         console.log(this.state.mapObj)

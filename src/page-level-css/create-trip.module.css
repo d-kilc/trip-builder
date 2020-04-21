@@ -1,25 +1,51 @@
 .container {
-  display: flex;
-  justify-content: space-between;
-}
-  
-.mapDiv {
-  height: 100vh;
-  width: 40%;
-}
-  
-.controlDiv {
-  width: 60%;
-  margin-right: 0;
-  display: flex;
+  display:flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
 }
 
-.buttonFrame {
+.mapDiv {
+  height: 40vh;
   width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
+}
+.controlDiv {
+  height: 50vh;
+  width: 100%;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+@media(min-width: 500px) {
+
+  .container {
+    /* display: flex; */
+    height:90vh;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+    
+  .mapDiv {
+    height: 90vh;
+    width: 50%;
+  }
+    
+  .controlDiv {
+    width: 50%;
+    margin-right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .buttonFrame {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
+  
 }

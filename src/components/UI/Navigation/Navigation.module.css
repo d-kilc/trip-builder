@@ -1,0 +1,38 @@
+.container {
+    height: 10vh;
+}
+
+.Navbar {
+    height: 10vh;
+    display: flex;
+    flex-direction: block;
+    justify-content: space-evenly;
+
+}
+
+.DesktopOnly {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+
+@media (min-width: 500px) {
+    .MobileOnly {
+        display: none;
+    }
+}
+
+@media (max-width: 499px) {
+    .DesktopOnly {
+        display: none;
+    }
+
+    .button {
+        border-radius: 6px;
+        font-size: 16px;
+        color: white;
+        background-color: transparent;
+        border: 2px solid white;
+    }
+}

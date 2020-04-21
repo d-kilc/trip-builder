@@ -15,17 +15,17 @@ const googleMap = (props) => (
     <GoogleMapReact
         bootstrapURLKeys={{ key: 'AIzaSyCa8crWdUo2jvzQWYP2GjWtAxTuyyodDac', language: 'en' }}
         yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={({ map, maps }) => props.handleApiLoaded(map, maps)}
+        // onGoogleApiLoaded={({ map, maps }) => props.handleApiLoaded(map, maps)}
         defaultCenter={defaultProps.center}
         defaultZoom={defaultProps.zoom}>
-            {props.stopList.map(stop =>
+            {/* {props.stopList.map(stop =>
                 (<Marker
-                key={stop.id}
-                lat={stop.latitude}
-                lng={stop.longitude}
-                // show={stop.show}
-                // stop={stop}
-                />))}
+                    key={stop.id}
+                    lat={stop.latitude}
+                    lng={stop.longitude}
+                    // show={stop.show}
+                    // stop={stop}
+                />))} */}
     </GoogleMapReact>
 )
 
