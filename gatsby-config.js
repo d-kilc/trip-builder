@@ -17,6 +17,16 @@ module.exports = {
             }
         },
         // {
+        //     resolve: 'gatsby-source-graphql',
+        //     options: {
+        //         // This type will contain remote schema Query type
+        //         typeName: "GoogleMaps",
+        //         // This is the field under which it's accessible
+        //         fieldName: "gmaps",
+        //         url: 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCa8crWdUo2jvzQWYP2GjWtAxTuyyodDac'
+        //     }
+        // },
+        // {
         //     resolve: 'gatsby-source-googlemaps-geocoding',
         //     options: {
         //         key: 'AIzaSyCa8crWdUo2jvzQWYP2GjWtAxTuyyodDac',
