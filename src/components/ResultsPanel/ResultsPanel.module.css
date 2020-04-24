@@ -1,0 +1,14 @@
+@media(min-width:500px) {
+    /* .Row {
+        margin-bottom: 20px;
+    } */
+
+    .resultsPanel {
+        width: 45%;
+        border: 2px solid grey;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+}

@@ -8,7 +8,8 @@ const modal = props => {
     <React.Fragment>
       <Backdrop
         visible={props.visible}
-        clicked={props.hide}/>
+        clicked={props.hide}
+        id={props.id}/>
       <div
         className={classes.Modal}
         style={{

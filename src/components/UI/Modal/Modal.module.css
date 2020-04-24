@@ -19,5 +19,11 @@
         /* width: 80%;
         left: 10%; */
         /* left: calc(50% - 250px); */
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        height: 50vh;
+        top:25vh;
     }
 }

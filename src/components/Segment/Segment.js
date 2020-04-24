@@ -5,6 +5,7 @@ import DatePicker from 'react-date-picker'
 // import { DatePicker } from "react-bootstrap-date-picker";
 
 import Modal from "../UI/Modal/Modal"
+import ResultsPanel from "../ResultsPanel/ResultsPanel"
 
 import classes from "./Segment.module.css"
 // import "react-datepicker/dist/react-datepicker.css"
@@ -24,7 +25,7 @@ class Segment extends React.Component {
 
         return(
             <Container>
-                <Modal visible={this.props.modalVisible} hide={this.props.handleCancelEdit}>
+                <Modal visible={this.props.modalVisible} hide={this.props.handleCancelEdit} id={this.props.id}>
                     <div className={classes.controlPanel}>
                         <Row className={classes.Row}>
                             <Col xs={{span: 12}} sm={{span:6}} className={classes.Col}>
@@ -33,7 +34,7 @@ class Segment extends React.Component {
                                     className={classes.FormControl}
                                     size='sm'
                                     placeholder="City from"
-                                    value={this.props.selectedCityFrom}
+                                    value={this.props.selectedCityFrom.name}
                                     onChange={(e) => this.props.handleCityFromChange(e, this.props.id)} type="text"
                                 />
                             </Col>
@@ -43,7 +44,7 @@ class Segment extends React.Component {
                                     className={classes.FormControl}
                                     size='sm'
                                     placeholder="City to"
-                                    value={this.props.selectedCityTo}
+                                    value={this.props.selectedCityTo.name}
                                     onChange={(e) => this.props.handleCityToChange(e, this.props.id)} type="text"
                                 />
                             </Col>
@@ -64,7 +65,7 @@ class Segment extends React.Component {
                                     size='sm'
                                     onChange={(e) => this.props.handleMethodChange(e, this.props.id)}
                                     // className={classes.DatePicker}
-                                    // value={this.props.selectedDate}
+                                    value={this.props.selectedMode}
                                     // onChange={(e) => this.props.handleDateChange(e, this.props.id)}
                                 >
                                     <option value="" disabled selected> </option>
@@ -91,6 +92,14 @@ class Segment extends React.Component {
                             </Col>
                         </Row>
                     </div>
+                    <ResultsPanel
+                        mapsApi={this.props.mapsApi}
+                        mapObj={this.props.mapObj}
+                        selectedCityFrom={this.props.selectedCityFrom}
+                        selectedCityTo={this.props.selectedCityTo}
+                        selectedDate={this.props.selectedDate}
+                        selectedMode={this.props.selectedMode}
+                    />
                 </Modal>
 
     {/* --------------------------------------------------------------------------------------------------- */}
@@ -102,7 +111,7 @@ class Segment extends React.Component {
                             className={classes.FormControl}
                             size='sm'
                             placeholder="City from"
-                            value={this.props.selectedCityFrom}
+                            value={this.props.selectedCityFrom.name}
                             onChange={(e) => this.props.handleCityFromChange(e, this.props.id)} type="text"
                         />
                     </Col>
@@ -112,19 +121,11 @@ class Segment extends React.Component {
                             className={classes.FormControl}
                             size='sm'
                             placeholder="City to"
-                            value={this.props.selectedCityTo}
+                            value={this.props.selectedCityTo.name}
                             onChange={(e) => this.props.handleCityToChange(e, this.props.id)} type="text"
                         />
                     </Col>
                     <Col xs={{span: 3}} className={classes.Col}>
-                        {/* change to datepicker */}
-                        {/* <Form.Control
-                            disabled
-                            className={classes.DatePicker}
-                            size='sm'
-                            value={this.props.selectedDate}
-                            onChange={(e) => this.props.handleDateChange(e, this.props.id)}
-                        /> */}
                         <DatePicker 
                             className={classes.DatePicker}
                             disabled='true'
@@ -135,7 +136,7 @@ class Segment extends React.Component {
                         <ButtonGroup
                             // className={classes.Button}
                         >
-                            <Button onClick={this.props.handleEdit}>Edit</Button>
+                            <Button onClick={() => this.props.handleEdit(this.props.id)}>Edit</Button>
                             { 
                                 this.props.id > 0 ?
                                     <Button variant='danger' onClick={() => this.props.handleRemoveSegment(this.props.id)}>Delete</Button>

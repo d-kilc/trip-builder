@@ -25,12 +25,13 @@ class TripBuilder extends Component {
             console.log('loop')
             segmentComponents.push(
                 <Segment
-                    key={ i + 1 }
-                    id={ i + 1 }
+                    key={this.props.segments[i + 1].key}
+                    // id={ i + 1 }
+                    id={this.props.segments[i + 1].key}
                     mapsApi={this.props.mapsApi}
                     mapObj={this.props.mapObj}
                     methods={this.props.methods}
-                    modalVisible={this.props.modalVisible}
+                    modalVisible={this.props.segments[i + 1].modalVisible}
                     handleEdit={this.props.handleEdit}
                     handleCancelEdit={this.props.handleCancelEdit}
                     handleRemoveSegment={this.props.handleRemoveSegment}
@@ -39,8 +40,8 @@ class TripBuilder extends Component {
                     handleCityToChange={this.props.handleCityToChange}
                     handleDateChange={this.props.handleDateChange}
                     handleMethodChange={this.props.handleMethodChange}
-                    selectedCityFrom={this.props.segments[i + 1].cityFrom.name}
-                    selectedCityTo={this.props.segments[i + 1].cityTo.name}                
+                    selectedCityFrom={this.props.segments[i + 1].cityFrom}
+                    selectedCityTo={this.props.segments[i + 1].cityTo}                
                     selectedDate={this.props.segments[i + 1].date}
                     selectedMode={this.props.segments[i + 1].mode}  
                 /> 
@@ -55,7 +56,7 @@ class TripBuilder extends Component {
                     mapsApi={this.props.mapsApi}
                     mapObj={this.props.mapObj}
                     methods={this.props.methods}
-                    modalVisible={this.props.modalVisible}
+                    modalVisible={this.props.segments[0].modalVisible}
                     handleEdit={this.props.handleEdit}
                     handleCancelEdit={this.props.handleCancelEdit}
                     handleRemoveSegment={this.props.handleRemoveSegment}
@@ -64,8 +65,8 @@ class TripBuilder extends Component {
                     handleCityToChange={this.props.handleCityToChange}
                     handleDateChange={this.props.handleDateChange}
                     handleMethodChange={this.props.handleMethodChange}
-                    selectedCityFrom={this.props.segments[0].cityFrom.name}
-                    selectedCityTo={this.props.segments[0].cityTo.name}
+                    selectedCityFrom={this.props.segments[0].cityFrom}
+                    selectedCityTo={this.props.segments[0].cityTo}
                     selectedDate={this.props.segments[0].date}
                     selectedMode={this.props.segments[0].mode}
                 />

@@ -17,7 +17,6 @@ class CreateTrip extends Component {
         Geocode.setLanguage("en")
     
         this.state = { 
-            modalVisible: false,
             methods: [ 'Car', 'Bus', 'Train', 'Plane' ],
             segmentCounter: 1,
             segments: [
@@ -27,28 +26,96 @@ class CreateTrip extends Component {
                         name: '',
                         // latitude: null, 
                         // longitude: null,
-                        location: null //LatLngLiteral type
+                        location: null, //LatLngLiteral type
+                        marker: null
                     },
                     cityTo: {
                         name: '',
                         // latitude: null, 
                         // longitude: null,
-                        location: null //LatLngLiteral type
+                        location: null, //LatLngLiteral type
+                        marker: null
                     },
                     date: null,
                     mode: null,
-                    directionsRenderer: null
+                    directionsRenderer: null,
+                    modalVisible: false,
                 },
             ]
         }
     } 
+    ////////////////////////////////////////////helper functions
+    geoCodeAddress = (address) => {
+        let maps = this.state.mapsApi
+        let geocoder = new maps.Geocoder()
 
-    handleEdit = () => {
-        this.setState({modalVisible: true})
+        // return a Promise
+        return new Promise(function(resolve, reject) {
+            geocoder.geocode({ address: address }, function(results, status) {
+                // if (status == maps.GeocoderStatus.OK) {
+                if (status == 'OK') {
+                    // resolve results upon a successful status
+                    resolve(results);
+                } else {
+                    // reject status upon un-successful status
+                    reject(status);
+                }
+            });
+        });
     }
 
-    handleCancelEdit = () => {
-        this.setState({modalVisible: false})
+    
+    mapLocation = (origin, destination) => {
+        let maps = this.state.mapsApi
+        let directionsService = new maps.DirectionsService()
+
+        // return a Promise
+        return new Promise(function(resolve, reject) {
+            directionsService.route({
+                // origin: segments[idx].cityFrom.location,
+                // destination: segments[idx].cityTo.location,
+                origin: origin,
+                destination: destination,
+                travelMode: 'DRIVING'
+            }, function(results, status) {
+                // if (status == maps.GeocoderStatus.OK) {
+                if (status == 'OK') {
+                    // resolve results upon a successful status
+                    resolve(results);
+                } else {
+                    // reject status upon un-successful status
+                    reject(status);
+                }
+            });
+        });
+    }
+
+    ////////////////////////////////////end helper functions
+
+    handleEdit = (id) => {
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id })
+        segments[idx].modalVisible = true
+        
+        this.setState({segments: segments},
+            function () {
+                console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
+            }
+          )
+    }
+
+    handleCancelEdit = (id) => {
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id })
+        segments[idx].modalVisible = false
+        
+        this.setState({segments: segments},
+            function () {
+                console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
+            }
+          )
     }
 
     handleAddSegment = () => {
@@ -56,28 +123,25 @@ class CreateTrip extends Component {
         let segments = [...this.state.segments]
 
         segments.push({
-            key: numSegments - 1,
+            key: segments[numSegments - 2].key + 1,
             cityFrom: {
-                name: '',
-                latitude: null, 
-                longitude: null,
-                mode: null
+                name: segments[numSegments - 2].cityTo.name,
+                location: null
             },
             cityTo: {
                 name: '',
-                latitude: null, 
-                longitude: null,
-                mode: null
+                location: null
             },
             date: null,
             mode: null,
-            routeRendered: false
+            directionsRenderer: null,
+            modalVisible: false
         })
 
         this.setState({ segmentCounter: numSegments, segments: segments },
             function () {
-              console.log('new segment count: ', this.state.segmentCounter)
-              console.log('new segment state: ', this.state.segments)
+                console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
             }
           ) 
     }
@@ -88,13 +152,19 @@ class CreateTrip extends Component {
             let numSegments = this.state.segmentCounter - 1
             let segments = [...this.state.segments]
             let idx = segments.findIndex( (el) => { return el.key === id } )
+            
+            //set directionsRenderer to null if it exists (before splicing the segment off) to remove the route from the map
+            //setMap(null) for the markers to removet them as well
+            if (segments[idx].directionsRenderer) segments[idx].directionsRenderer.setMap(null)
+            segments[idx].cityFrom.marker.setMap(null)
+            segments[idx].cityTo.marker.setMap(null)
             segments.splice(idx, 1)
 
             // update the state and print
             this.setState({ segmentCounter: numSegments, segments: segments },
                 function () {
-                console.log('segment removed--new count: ', this.state.segmentCounter)
-                console.log('new segments state: ', this.state.segments)
+                    console.log('segment removed--new count: ', this.state.segmentCounter)
+                    console.log('new segments state: ', this.state.segments)
                 }
             )
         }   
@@ -118,32 +188,28 @@ class CreateTrip extends Component {
         let idx = segments.findIndex( (el) => { return el.key === id })
         segments[idx].cityFrom.name = e.target.value
 
-        // tie this cityFrom to the previous legs cityTo
-        // if (id > 0) {
-
-        // }
-
-        // geocoding code -- save for later
-        // Geocode.fromAddress(e.target.value).then(
-        //     response => {
-        //       const { lat, lng } = response.results[0].geometry.location;
-        //       newStops[idx].latitude = lat
-        //       newStops[idx].longitude = lng
-        //       console.log(lat, lng)
-        //     },
-        //     error => {
-        //       console.error(error);
-        //     }
-        // )
-
-        // update the state and print
-        this.setState({ stops: segments },
+        // update the state so we can update the UI as the user types
+        // before geocoding
+        this.setState({ segments: segments },
             function () {
-            console.log('new segment count: ', this.state.segmentCounter)
-            console.log('new segments state: ', this.state.segments)
+                console.log('new segments state: ', this.state.segments)
             }
         ) 
 
+        // now, geocode the address and then store the location in state too
+        let geocoder = new this.state.mapsApi.Geocoder()
+        geocoder.geocode({address: segments[idx].cityFrom.name}, (res, status) => {
+            if (status !== 'OK') return console.log('status: ', status)
+            const locTo = res[0].geometry.location.toJSON()
+            segments[idx].cityFrom.location = locTo
+
+            // update the state and print
+            this.setState({ segments: segments },
+                function () {
+                    console.log('new segments state: ', this.state.segments)
+                }
+            ) 
+        })
     }
 
     handleCityToChange = (e, id) => {
@@ -151,17 +217,28 @@ class CreateTrip extends Component {
         let idx = segments.findIndex( (el) => { return el.key === id })
         segments[idx].cityTo.name = e.target.value
 
-        // if (id > 0) {
-
-        // }
-
-        // update the state and print
-        this.setState({ stops: segments },
+        // update the state so we can update the UI as the user types
+        // before geocoding
+        this.setState({ segments: segments },
             function () {
-            console.log('new segment count: ', this.state.segmentCounter)
-            console.log('new segments state: ', this.state.segments)
+                console.log('new segments state: ', this.state.segments)
             }
         ) 
+
+        // now, geocode the address and then store the location in state too
+        let geocoder = new this.state.mapsApi.Geocoder()
+        geocoder.geocode({address: segments[idx].cityTo.name}, (res, status) => {
+            if (status !== 'OK') return console.log('status: ', status)
+            const locTo = res[0].geometry.location.toJSON()
+            segments[idx].cityTo.location = locTo
+
+            // update the state and print
+            this.setState({ segments: segments },
+                function () {
+                    console.log('new segments state: ', this.state.segments)
+                }
+            ) 
+        })
 
     }
 
@@ -202,102 +279,68 @@ class CreateTrip extends Component {
         let segments = [...this.state.segments]
         let idx = segments.findIndex( (el) => { return el.key === id } )
 
-        let geocoder = new maps.Geocoder()
-        let directionsService = new maps.DirectionsService()
-
         //either get this segment's renderer, or create a new one if there isnt one yet
         let directionsRenderer
+        let rendererOptions = {
+            suppressMarkers: true
+        }
         !this.state.segments[idx].directionsRenderer ?
-            directionsRenderer = new maps.DirectionsRenderer()
+            directionsRenderer = new maps.DirectionsRenderer(rendererOptions)
         :
             directionsRenderer = this.state.segments[idx].directionsRenderer
         
-        segments[idx].directionsRenderer = directionsRenderer
-
-        function geoCodeAddress(address) {
-            // return a Promise
-            return new Promise(function(resolve, reject) {
-                geocoder.geocode({ address: address }, function(results, status) {
-                    // if (status == maps.GeocoderStatus.OK) {
-                    if (status == 'OK') {
-                        // resolve results upon a successful status
-                        resolve(results);
-                    } else {
-                        // reject status upon un-successful status
-                        reject(status);
-                    }
-                });
-            });
-        }
-
-        function mapLocation(origin, destination) {
-            // return a Promise
-            return new Promise(function(resolve, reject) {
-                directionsService.route({
-                    // origin: segments[idx].cityFrom.location,
-                    // destination: segments[idx].cityTo.location,
-                    origin: origin,
-                    destination: destination,
-                    travelMode: 'DRIVING'
-                }, function(results, status) {
-                    // if (status == maps.GeocoderStatus.OK) {
-                    if (status == 'OK') {
-                        // resolve results upon a successful status
-                        resolve(results);
-                    } else {
-                        // reject status upon un-successful status
-                        reject(status);
-                    }
-                });
-            });
-        }
-
-        geoCodeAddress(segments[idx].cityFrom.name)
-            .then(res => {
-                console.log('geocodeAddress 1 then')
-                const locFrom = res[0].geometry.location.toJSON()
-                segments[idx].cityFrom.location = locFrom
-
-                //update state
-                this.setState( {segments: segments},
-                    function() {
-                        console.log('segments with locations: ', this.state.segments)
-                    }    
-                )
-                return
-            })
-            .then(() => {
-                return geoCodeAddress(segments[idx].cityTo.name)
-            })
-            .then(res => {
-                console.log('geocodeAddress 2 then')
-                const locTo = res[0].geometry.location.toJSON()
-                segments[idx].cityTo.location = locTo
-
-                //update state
-                this.setState( {segments: segments},
-                    function() {
-                        console.log('segments with locations: ', this.state.segments)
-                    }    
-                )
-                return
-            })
-            .then(() => {
-                return mapLocation(this.state.segments[idx].cityFrom.location, this.state.segments[idx].cityTo.location)
-            })
+        this.mapLocation(segments[idx].cityFrom.location, segments[idx].cityTo.location)
             .then((res) => {
+                //get the response and render the route with custom markers
                 console.log('mapAddress then 1')
                 directionsRenderer.setDirections(res)
                 directionsRenderer.setMap(map)
+                
+                segments[idx].cityFrom.marker = new maps.Marker({
+                    position: segments[idx].cityFrom.location,
+                    icon: {
+                        path: maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: "#F00",
+                        fillOpacity: 1,
+                        strokeWeight: 1
+                    },
+                    map: map
+                });
+
+                segments[idx].cityTo.marker = new maps.Marker({
+                    position: segments[idx].cityTo.location,
+                    icon: {
+                        path: maps.SymbolPath.CIRCLE,
+                        scale: 8,
+                        fillColor: "#F00",
+                        fillOpacity: 1,
+                        strokeWeight: 1
+                    },
+                    map: map
+                  });
+
+                return directionsRenderer
             })
-            .then(() => this.handleCancelEdit())
+            .then((directionsRenderer) => {
+                //close the modal and update the state
+                //store the updated directionsRenderer in state so we can remove the route if needed in the future (by setting it back to null)
+                this.handleCancelEdit(id)
+                segments[idx].directionsRenderer = directionsRenderer
+                
+                //update state with the updated
+                this.setState( {segments: segments},
+                    function() {
+                        console.log('segments with locations: ', this.state.segments)
+                    }    
+                )
+
+            })
             .catch(err => console.log(err))
 
     }
 
     render(props) {
-        let stops// = [...this.state.stops]
-
         return (
             <Layout>
 
@@ -315,7 +358,6 @@ class CreateTrip extends Component {
                             methods={this.state.methods}
                             segments={this.state.segments}
                             numSegments={this.state.segmentCounter}
-                            modalVisible={this.state.modalVisible}
                             handleEdit={this.handleEdit}
                             handleCancelEdit={this.handleCancelEdit}
                             handleAddSegment={this.handleAddSegment}
@@ -325,11 +367,6 @@ class CreateTrip extends Component {
                             handleCityToChange={this.handleCityToChange}
                             handleDateChange={this.handleDateChange}
                             handleMethodChange={this.handleMethodChange}
-                            //   cityChanged={this.handleCityChange}
-                            //   stopRemoved={this.handleRemoveStop}
-                            //   numStops={this.state.stopCounter}
-                            //   addStop={this.handleAddStop}
-                            //   generateItinerary={this.handleGenerateItinerary}
                         />
                     </div>
                 </div>
