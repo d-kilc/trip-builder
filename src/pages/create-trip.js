@@ -1,216 +1,351 @@
 import React, { Component } from 'react'
 import Geocode from 'react-geocode'
+import assign from 'lodash/assign'
 
 import Layout from '../containers/Layout/Layout'
+// import Modal from '../components/UI/Modal/Modal'
 import Map from '../components/Map/Map'
-import ControlBox from '../components/ControlBox/ControlBox'
+import TripBuilder from '../components/TripBuilder/TripBuilder'
 
 import classes from '../page-level-css/create-trip.module.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class CreateTrip extends Component {
-  constructor(props) {
-    super(props);
+    constructor(props) {
+        super(props);
  
-    Geocode.setApiKey("AIzaSyCa8crWdUo2jvzQWYP2GjWtAxTuyyodDac")
-    Geocode.setLanguage("en")
+        Geocode.setApiKey("AIzaSyCa8crWdUo2jvzQWYP2GjWtAxTuyyodDac")
+        Geocode.setLanguage("en")
     
-    this.state = { 
-      // mapCenter: {lat: 39.977353, lng: -82.999110},
-      modes: [ 'Bus', 'Train', 'Airplane' ],
-      // selectedCity: '',
-      // selectedOption: null,
-      // startDate: new Date(),
-      stopCounter: 0,
-      stops: [
-        {key: 'start', city: '', latitude: null, longitude: null, mode: null, date: null},
-        {key: 'end', city: '', latitude: null, longitude: null, mode: null, date: null},
-      ]
-    }
-  } 
-
-  handleAddStop = () => {
-    console.log('click')
-    // add the stop
-    let numStops = this.state.stopCounter + 1
-    let newStops = [...this.state.stops]
-
-    newStops.splice(
-      numStops, 0, {key: numStops, city: '', latitude: null, longitude: null, mode: null, date: null}
-    )
-    // update the state and print
-    this.setState({ stopCounter: numStops, stops: newStops },
-      function () {
-        console.log('new stop count: ', this.state.stopCounter)
-        console.log('new stops state: ', this.state.stops)
-      }
-    )    
-  }
-
-  handleRemoveStop = (id) => {
-    console.log('clack')
-    if (this.state.stopCounter > 0) {
-      // copy stops array and remove the given stop
-      let numStops = this.state.stopCounter - 1
-      let newStops = [...this.state.stops]
-      let idx = newStops.findIndex( (el) => { return el.key === id } )
-      newStops.splice(idx, 1)
-
-      // update the state and print
-      this.setState({ stopCounter: numStops, stops: newStops },
-        function () {
-          console.log('new stop count: ', this.state.stopCounter)
-          console.log('new stops state: ', this.state.stops)
+        this.state = { 
+            // methods: [ 'Car', 'Bus', 'Train', 'Plane' ],
+            methods: [ 'Car'],
+            segmentCounter: 1,
+            segments: [
+                {
+                    key: 0,
+                    cityFrom: {
+                        name: '',
+                        location: null, //LatLngLiteral type
+                        marker: null
+                    },
+                    cityTo: {
+                        name: '',
+                        location: null, //LatLngLiteral type
+                        marker: null
+                    },
+                    date: null,
+                    mode: null,
+                    directionsRenderer: null,
+                    modalVisible: false,
+                },
+            ]
         }
-      )
-    }   
-  }
-
-  apiIsLoaded = (map, maps) => {
-    console.log('api loaded')
-  
-    // mapObj is the instance on the page; mapsApi is the GMaps API service
-    this.setState({mapObj: map, mapsApi: maps},
-      function() {
-        console.log(this.state.mapObj)
-        console.log(this.state.mapsApi)
-      }
-    )
-  }
-
-  handleCityChange = (e, id) => {
-    // copy stops array and update the specific object with the given city
-    let newStops = [...this.state.stops]
-    let idx = newStops.findIndex( (el) => { return el.key === id } )
-    newStops[idx].city = e.target.value
-
+    } 
     
-    Geocode.fromAddress(e.target.value).then(
-      response => {
-        const { lat, lng } = response.results[0].geometry.location;
-        newStops[idx].latitude = lat
-        newStops[idx].longitude = lng
-        console.log(lat, lng)
-      },
-      error => {
-        console.error(error);
-      }
-    )
 
-    // update the state and print
-    this.setState({ stops: newStops },
-      function () {
-        console.log('new stop count: ', this.state.stopCounter)
-        console.log('new stops state: ', this.state.stops)
-      }
-    ) 
-  }
-
-  handleModeChange = (e, componentId) => {     
-    // copy stops array and update the specific object with the given city
-    let newStops = [...this.state.stops]
-    let idx = newStops.findIndex( (el) => { return el.key === componentId } )
-    newStops[idx].mode = e
-
-    // update the state and print
-    this.setState({ stops: newStops },
-      function () {
-        console.log('new stop count: ', this.state.stopCounter)
-        console.log('new stops state: ', this.state.stops)
-      }
-    ) 
-  }
-
-  handleDateSelect = (e, id) => {
-    // copy stops array and update the specific object with the given date
-    let newStops = [...this.state.stops]
-    let idx = newStops.findIndex( (el) => { return el.key === id } )
-    newStops[idx].date = e
- 
-    // update the state and print
-    this.setState({ stops: newStops },
-      function () {
-        console.log('new stop count: ', this.state.stopCounter)
-        console.log('new stops state: ', this.state.stops)
-      }
-    ) 
-  }
-
-  handleGenerateItinerary = () => {
-    let map = this.state.mapObj
-    let maps = this.state.mapsApi
-    // console.log(map, maps)
-    let directionsService = new maps.DirectionsService()
-    // console.log(directionsService)
-
-    let stops = this.state.stops
-    console.log('stops: ', stops.length)
-    // the intermediate stops used to build the route
-    let waypts = []
-
-    // loop through the intermediate stops - not the startpoint or endpoint, just the locations between
-    // push these to the waypts object, which will be passed to directionsRequest below to determine the route
-    for (let i = 1; i <= (stops.length - 2); i++) {
-      if (stops[i].latitude === null || stops[i].longitude === null ) continue
-      waypts.push({
-        location: {lat: stops[i].latitude, lng: stops[i].longitude},
-        stopover: true
-      })
-    }
-    console.log('waypts: ',waypts)
+    ////////////////////////////////////end helper functions
     
-    let directionsRequest = {
-      origin: new maps.LatLng( stops[0].latitude, stops[0].longitude ),
-      waypoints: waypts,
-      destination: new maps.LatLng( stops[stops.length - 1].latitude, stops[stops.length - 1].longitude ),
-      travelMode: maps.DirectionsTravelMode.DRIVING,
-      unitSystem: maps.UnitSystem.METRIC
+    updateLocation = (id, location, toOrFrom) => {
+        // this fn will help the previewRoutes fn in ResultsPanel geocode the user input
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id })
+        //console.log('segment idx: ', idx)
+
+        if(toOrFrom === 'from') {
+            segments[idx].cityFrom.location = location
+        } else if (toOrFrom === 'to') {
+            segments[idx].cityTo.location = location
+        }
+
+        this.setState( { segments: segments }, function () {
+            console.log('segments with locations: ', this.state.segments)
+        } )
     }
 
-    // create the route
-    directionsService.route(
-      directionsRequest,
-      function(response, status) {
-        if (status == maps.DirectionsStatus.OK) {
-          new maps.DirectionsRenderer({
-            map: map,
-            directions: response
-          })
-        } 
-        // else $("#error").append("Unable to retrieve your route<br />")
-      }
-    )
-  }
 
-  render(props) {
-    console.log('mapframe rendered')
-    let stops = [...this.state.stops]
+    handleEdit = (id) => {
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id })
+        segments[idx].modalVisible = true
+        
+        this.setState({segments: segments},
+            function () {
+                console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
+            }
+          )
+    }
 
-    return (
-      <Layout>
-        <div className={classes.container}>
-          <div className={classes.mapDiv}>
-            <Map
-              handleApiLoaded={this.apiIsLoaded}
-              stopList={stops}/>
-          </div>
-          <div className={classes.controlDiv}>
-            <ControlBox
-              modes={this.state.modes}
-              stops={this.state.stops}
-              dateChanged={this.handleDateSelect}
-              modeChanged={this.handleModeChange}
-              cityChanged={this.handleCityChange}
-              stopRemoved={this.handleRemoveStop}
-              numStops={this.state.stopCounter}
-              addStop={this.handleAddStop}
-              generateItinerary={this.handleGenerateItinerary}
-            />
-          </div>
-        </div>
-      </Layout>
-    )
-  }
+    handleCancelEdit = (id) => {
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id })
+        segments[idx].modalVisible = false
+        
+        this.setState({segments: segments},
+            function () {
+                console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
+            }
+          )
+    }
+
+    handleAddSegment = () => {
+        let numSegments = this.state.segmentCounter + 1
+        let segments = [...this.state.segments]
+
+        segments.push({
+            key: segments[numSegments - 2].key + 1,
+            cityFrom: {
+                name: segments[numSegments - 2].cityTo.name,
+                location: {...segments[numSegments - 2].cityTo.location}
+            },
+            cityTo: {
+                name: '',
+                location: null
+            },
+            date: null,
+            mode: null,
+            directionsRenderer: null,
+            modalVisible: false
+        })
+
+        this.setState({ segmentCounter: numSegments, segments: segments },
+            function () {
+                console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
+            }
+          ) 
+    }
+
+    handleRemoveSegment = (id) => {
+        if (this.state.segmentCounter > 1) {
+            // copy stops array and remove the given stop
+            let numSegments = this.state.segmentCounter - 1
+            let segments = [...this.state.segments]
+            let idx = segments.findIndex( (el) => { return el.key === id } )
+            
+            //set directionsRenderer to null if it exists (before splicing the segment off) to remove the route from the map
+            //setMap(null) for the markers to removet them as well
+            if (segments[idx].directionsRenderer) segments[idx].directionsRenderer.setMap(null)
+            if (segments[idx].cityFrom.marker) segments[idx].cityFrom.marker.setMap(null)
+            if (segments[idx].cityTo.marker) segments[idx].cityTo.marker.setMap(null)
+            segments.splice(idx, 1)
+
+            // update the state and print
+            this.setState({ segmentCounter: numSegments, segments: segments },
+                function () {
+                    console.log('segment removed--new count: ', this.state.segmentCounter)
+                    console.log('new segments state: ', this.state.segments)
+                }
+            )
+        }   
+    }
+
+    apiIsLoaded = (map, maps) => {
+        console.log('api loaded')
+    
+        // mapObj is the instance on the page; mapsApi is the GMaps API service
+        this.setState({mapObj: map, mapsApi: maps}
+        )
+    }
+
+    handleCityFromChange = (e, id) => {
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id })
+        segments[idx].cityFrom.name = e.target.value
+
+        // update the state so we can update the UI as the user types
+        // before geocoding
+        this.setState({ segments: segments },
+            function () {
+                console.log('new segments state: ', this.state.segments)
+            }
+        ) 
+
+        // // now, geocode the address and then store the location in state too
+        // // don't geocode if its an empty string
+        // if (segments[idx].cityFrom.name.length > 2) {
+        //     let geocoder = new this.state.mapsApi.Geocoder()
+        //     geocoder.geocode({address: segments[idx].cityFrom.name}, (res, status) => {
+        //         if (status !== 'OK') return console.log('status: ', status)
+        //         const locTo = res[0].geometry.location.toJSON()
+        //         segments[idx].cityFrom.location = locTo
+
+        //         // update the state and print
+        //         this.setState({ segments: segments },
+        //             function () {
+        //                 console.log('new segments state: ', this.state.segments)
+        //             }
+        //         ) 
+        //     })
+        // }
+    }
+
+    handleCityToChange = (e, id) => {
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id })
+        segments[idx].cityTo.name = e.target.value
+
+        // update the state so we can update the UI as the user types
+        // before geocoding
+        this.setState({ segments: segments },
+            function () {
+                console.log('new segments state: ', this.state.segments)
+            }
+        ) 
+
+        // // now, geocode the address and then store the location in state too
+        // // don't geocode if its an empty string
+        // if (segments[idx].cityTo.name.length > 2) {
+        //     let geocoder = new this.state.mapsApi.Geocoder()
+        //     geocoder.geocode({address: segments[idx].cityTo.name}, (res, status) => {
+        //         if (status !== 'OK') return console.log('status: ', status)
+        //         const locTo = res[0].geometry.location.toJSON()
+        //         segments[idx].cityTo.location = locTo
+
+        //         // update the state and print
+        //         this.setState({ segments: segments },
+        //             function () {
+        //                 console.log('new segments state: ', this.state.segments)
+        //             }
+        //         ) 
+        //     })
+        // }
+    }
+
+    handleMethodChange = (e, componentId) => {
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === componentId } )
+        segments[idx].mode = e.target.value
+
+        // update the state and print
+        this.setState({ segments: segments },
+            function () {
+                console.log('new segment state: ', this.state.segments)
+            }
+        ) 
+    }
+
+    handleDateChange = (e, id) => {
+        // copy stops array and update the specific object with the given date
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id } )
+        segments[idx].date = e
+
+        // update the state and print
+        this.setState({ segments: segments },
+            function () {
+                console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
+            }
+        ) 
+    }
+
+    handleSelectRoute = (response, routeIndex , id) => {
+        let map = this.state.mapObj
+        let maps = this.state.mapsApi
+        
+        // copy stops array and update the specific object with the given route
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id } )
+
+        // clear the previously selected route from the map, if there was one
+        if (segments[idx].directionsRenderer) {
+            segments[idx].directionsRenderer.setMap(null)
+        }
+
+        // create a new directionsrenderer for the main map
+        // based on whatever the user clicked
+        segments[idx].directionsRenderer = new maps.DirectionsRenderer({suppressMarkers: true})
+
+        segments[idx].directionsRenderer.setDirections(response)
+        segments[idx].directionsRenderer.setRouteIndex(routeIndex)
+        segments[idx].directionsRenderer.setMap(map)
+
+        this.setState({ segments: segments },
+            function () {
+                // console.log('new segment count: ', this.state.segmentCounter)
+                console.log('new segment state: ', this.state.segments)
+            })
+    }
+
+    handleSaveSegment = (id) => {
+        let map = this.state.mapObj
+        let maps = this.state.mapsApi
+        console.log('map:', map, 'maps API: ', maps)
+
+        let segments = [...this.state.segments]
+        let idx = segments.findIndex( (el) => { return el.key === id } )
+
+        // create the origin marker
+        segments[idx].cityFrom.marker = new maps.Marker({
+            position: segments[idx].cityFrom.location,
+            icon: {
+                path: maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: "#F00",
+                fillOpacity: 1,
+                strokeWeight: 1
+            },
+            map: map
+        })
+
+        // create the destination marker
+        segments[idx].cityTo.marker = new maps.Marker({
+            position: segments[idx].cityTo.location,
+            icon: {
+                path: maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: "#F00",
+                fillOpacity: 1,
+                strokeWeight: 1
+            },
+            map: map
+        })
+
+        // renderer was passed in handleSelectRoute()
+        // now we actually bind that renderer to the big map and close the modal
+        // segments[idx].directionsRenderer.setMap(map)
+        segments[idx].directionsRenderer.map = map
+        this.handleCancelEdit(id)
+    }
+
+    render(props) {
+        return (
+            <Layout>
+
+                <div className={classes.container}>
+                    <div className={classes.mapDiv}>
+                        <Map
+                            handleApiLoaded={this.apiIsLoaded}
+                            segments={this.state.segments}
+                        />
+                    </div>
+                    <div className={classes.controlDiv}>
+                        <TripBuilder
+                            mapsApi={this.state.mapsApi}
+                            mapObj={this.state.mapObj}
+                            methods={this.state.methods}
+                            segments={this.state.segments}
+                            numSegments={this.state.segmentCounter}
+                            updateLocation={this.updateLocation}
+                            handleEdit={this.handleEdit}
+                            handleCancelEdit={this.handleCancelEdit}
+                            handleAddSegment={this.handleAddSegment}
+                            handleRemoveSegment={this.handleRemoveSegment}
+                            handleSaveSegment={this.handleSaveSegment}
+                            handleCityFromChange={this.handleCityFromChange}
+                            handleCityToChange={this.handleCityToChange}
+                            handleDateChange={this.handleDateChange}
+                            handleMethodChange={this.handleMethodChange}
+                            handleSelectRoute={this.handleSelectRoute}
+                        />
+                    </div>
+                </div>
+            </Layout>
+        )
+    }
 }
 
 export default CreateTrip

@@ -4,11 +4,43 @@
     } */
 
     .resultsPanel {
-        width: 45%;
-        border: 2px solid grey;
+        width: 50%;
+        /* border: 2px solid grey; */
         height: 100%;
-        display: flex;
-        justify-content: center;
+        display: block;
+        position: relative;
+        /* flex-direction: column;
+        justify-content: center; */
     }
 
+    .placeholder {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .routeOptions {
+        width: 100%;
+        height: 50%;
+        display: block;
+    }
+
+    Table {
+        overflow: scroll;
+    }
+
+    tr {
+        cursor: pointer;
+    }
+
+    .map {
+        height: 50%;
+        position: relative;
+        bottom: 0px;
+        right: 0;   
+    }
 }

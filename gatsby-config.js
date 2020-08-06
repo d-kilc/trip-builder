@@ -9,6 +9,10 @@ module.exports = {
     siteMetadata: {
         title: 'Trip Builder',
     },
+    proxy: {
+        prefix: '/api',
+        url: "http://localhost:3000",
+    },
     plugins: [
         {
             resolve: 'gatsby-plugin-typography',

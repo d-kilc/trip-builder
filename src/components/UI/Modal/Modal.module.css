@@ -23,7 +23,7 @@
         flex-direction: row;
         justify-content: space-around;
         align-items: center;
-        height: 50vh;
-        top:25vh;
+        height: 75vh;
+        top:12.5vh;
     }
 }

@@ -12,14 +12,19 @@ import classes from "./Segment.module.css"
 
 class Segment extends React.Component {
 
-    componentDidMount = () => {
+    // state = {
+    //     routeChosen: false
+    // }
 
-    }
+    // handleEnableSave = () => {
+    //     // this is used to only enable save once route is chosen in ResultsPanel
+    //     this.setState({ routeChosen: true })
+    // }
 
     render = (props) => {
         let hideSaveButton = true
 
-        if (this.props.selectedCityFrom && this.props.selectedCityTo && this.props.selectedDate && this.props.selectedMode) {
+        if (this.props.selectedCityFrom && this.props.selectedCityTo && this.props.selectedDate && this.props.selectedMode && this.props.selectedRoute) {
             hideSaveButton = false
         }
 
@@ -79,6 +84,24 @@ class Segment extends React.Component {
                                 </Form.Control>
                             </Col>
                         </Row>
+                        {/* {
+                            this.props.selectedMode === 'Car' ?
+                                <Row>
+                                <Col xs={{span: 12}} sm={{span:6}} className={classes.Col}>
+                                    <Form.Label>Est. gas mileage</Form.Label>
+                                    <Form.Control
+                                        className={classes.FormControl}
+                                        size='sm'
+                                        placeholder=""
+                                        value={this.props.selectedCityFrom.name}
+                                        onChange={(e) => this.props.handleCityFromChange(e, this.props.id)} type="text"
+                                    />
+                                </Col>
+                                </Row>
+                            :
+                                null
+
+                        } */}
                         <Row>
                             <Col style={{display: 'flex', justifyContent: 'center'}} sm={{span: 12}}>
                                 <Button
@@ -93,16 +116,19 @@ class Segment extends React.Component {
                         </Row>
                     </div>
                     <ResultsPanel
+                        segmentId={this.props.id}
                         mapsApi={this.props.mapsApi}
                         mapObj={this.props.mapObj}
+                        updateLocation={this.props.updateLocation}
                         selectedCityFrom={this.props.selectedCityFrom}
                         selectedCityTo={this.props.selectedCityTo}
                         selectedDate={this.props.selectedDate}
                         selectedMode={this.props.selectedMode}
+                        handleSelectRoute={this.props.handleSelectRoute}
                     />
                 </Modal>
 
-    {/* --------------------------------------------------------------------------------------------------- */}
+    {/* ------------------------------------------- end modal content -------------------------------------------------------- */}
 
                 <Row className={classes.Row}>
                     <Col xs={{span:3, offset: 1}} className={classes.Col}>

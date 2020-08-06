@@ -1,8 +1,6 @@
 import React from 'react'
 import GoogleMapReact from 'google-map-react'
 
-import Marker from '../Marker/Marker'
-
 const defaultProps = {
     center: {
       lat: 39.95,
