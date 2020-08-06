@@ -25,7 +25,7 @@ npm install
 
 3. Run the application locally
 ```
-npm start
+gatsby develop
 ```
 
 4. Navigate to localhost:8000 in the browser of your choice
