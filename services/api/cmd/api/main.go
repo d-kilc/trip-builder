@@ -21,15 +21,9 @@ func main() {
 	})
 
 	// list trips by user endpoint
-	e.GET("/users/:id/trips", func(c echo.Context) error {
-		// parse id, call q.ListTripsByUser
-		// id := c.Param("id")
-		// trips, err := q.ListTripsByUser(c.Request().Context(), id)
-		// if err != nil {
-		// 	return c.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to list trips"})
-		// }
-		// return c.JSON(http.StatusOK, trips)
-	})
+	// e.GET("/users/:id/trips", func(c echo.Context) error {
+	// 	// parse id, call q.ListTripsByUser
+	// })
 
 	// start server
 	addr := os.Getenv("ADDR")

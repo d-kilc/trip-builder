@@ -1,0 +1,14 @@
+{
+  "name": "travel-monorepo",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "api:dev": "pnpm -C services/api dev",
+    "api:start": "pnpm -C services/api start",
+    "api:build": "pnpm -C services/api build",
+    "api:test": "pnpm -C services/api test",
+    "api:sqlc": "pnpm -C services/api sqlc:generate",
+    "api:migrate": "pnpm -C services/api migrate",
+    "dev": "pnpm run api:dev"
+  }
+}
