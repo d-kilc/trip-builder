@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "air" -c air.toml,
+    "dev": "air -c .air.toml",
     "start": "go run ./cmd/api",
     "build": "go build -o bin/api ./cmd/api",
     "test": "go test ./...",

@@ -1,3 +1,15 @@
-.env
+# Go
+**/bin/
+**/*.exe
+**/*.out
 
-**/tmp
+# Node / Expo
+node_modules/
+.expo/
+.expo-shared/
+dist/
+
+# Env
+.env
+.env.local
+.env.*.local

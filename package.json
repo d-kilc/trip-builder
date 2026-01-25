@@ -9,6 +9,7 @@
     "api:test": "pnpm -C services/api test",
     "api:sqlc": "pnpm -C services/api sqlc:generate",
     "api:migrate": "pnpm -C services/api migrate",
-    "dev": "pnpm run api:dev"
+    "mobile:dev": "pnpm -C apps/mobile dev",
+    "dev": "pnpm run api:dev & pnpm run mobile:dev"
   }
 }
